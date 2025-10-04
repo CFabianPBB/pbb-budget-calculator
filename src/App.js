@@ -55,19 +55,22 @@ function App() {
         alert('Error: Could not find "Details" sheet in the file.');
         return;
       }
-      const detailsData = XLSX.utils.sheet_to_json(worksheet);
-      const funds = [...new Set(detailsData.map(row => row.Fund))].filter(f => f).sort();
-      setAvailableFunds(['All Funds', ...funds]);
       
-      const programMap = {};
-      detailsData.forEach(row => {
+      const detailsData = XLSX.utils.sheet_to_json(worksheet);
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // ADD THIS LINE
+        const funds = [...new Set(detailsData.map(row => row.Fund))].filter(f => f).sort();
+        setAvailableFunds(['All Funds', ...funds]);
+
+        const programMap = {};
+        detailsData.forEach((row, index) => {  // ADD INDEX HERE
+      
         const programId = row.program_id;
         if (!programId) return;
         if (!programMap[programId]) {
           programMap[programId] = {
             program_id: programId,
             Program: row.Program,
-            Department: row.Department || 'N/A',
+            Department: rawData[index + 1] ? rawData[index + 1][1] : 'N/A',
             Quartile: normalizeQuartile(row.Quartile),
             'Final Score': row['Final Score'],
             Personnel: 0,
