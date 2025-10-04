@@ -70,7 +70,7 @@ function App() {
           programMap[programId] = {
             program_id: programId,
             Program: row.Program,
-            Department: rawData[index + 1] ? rawData[index + 1][1] : 'N/A',
+            Department: rawData[index + 1] ? rawData[index + 1][3] : 'N/A',
             Quartile: normalizeQuartile(row.Quartile),
             'Final Score': row['Final Score'],
             Personnel: 0,
