@@ -67,7 +67,7 @@ function App() {
           programMap[programId] = {
             program_id: programId,
             Program: row.Program,
-            Department: row['User Group(accts)'] || row.Department || 'N/A',
+            Department: row.Department || 'N/A',
             Quartile: normalizeQuartile(row.Quartile),
             'Final Score': row['Final Score'],
             Personnel: 0,
@@ -498,14 +498,30 @@ function App() {
                           Total: {formatCurrency(dept.accountingFundAllocation + dept.otherFundAllocations + dept.programRevenue)}
                         </p>
                         <ResponsiveContainer width="100%" height={300}>
-                          <PieChart>
-                            <Pie data={pieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} outerRadius={80} fill="#8884d8" dataKey="value">
-                              {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                            </Pie>
-                            <Tooltip formatter={(value) => formatCurrency(value)} />
-                                <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
+                                <PieChart>
+                                    <Pie
+                                        data={pieData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={false}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                    </Pie>
+                                    <Tooltip formatter={(value) => formatCurrency(value)} />
+                                    <Legend
+                                        wrapperStyle={{ fontSize: '12px' }}
+                                        formatter={(value, entry) => {
+                                            const percent = ((entry.payload.value / pieData.reduce((sum, d) => sum + d.value, 0)) * 100).toFixed(0);
+                                            return `${value} (${percent}%)`;
+                                        }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+
                       </div>
                     );
                   })}
