@@ -57,20 +57,25 @@ function App() {
       }
       
       const detailsData = XLSX.utils.sheet_to_json(worksheet);
-        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // ADD THIS LINE
-        const funds = [...new Set(detailsData.map(row => row.Fund))].filter(f => f).sort();
-        setAvailableFunds(['All Funds', ...funds]);
-
-        const programMap = {};
-        detailsData.forEach((row, index) => {  // ADD INDEX HERE
+      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
       
+      const funds = [...new Set(detailsData.map(row => row.Fund))].filter(f => f).sort();
+      setAvailableFunds(['All Funds', ...funds]);
+      
+      const programMap = {};
+      detailsData.forEach((row, index) => {
         const programId = row.program_id;
         if (!programId) return;
+        
+        // Get department from column D (index 3) and program from column V (index 21)
+        const departmentFromColumnD = rawData[index + 1] ? rawData[index + 1][3] : 'N/A';
+        const programFromColumnV = rawData[index + 1] ? rawData[index + 1][21] : 'Unknown Program';
+        
         if (!programMap[programId]) {
           programMap[programId] = {
             program_id: programId,
-            Program: row.Program,
-            Department: rawData[index + 1] ? rawData[index + 1][3] : 'N/A',
+            Program: programFromColumnV || 'Unknown Program',
+            Department: departmentFromColumnD || 'N/A',
             Quartile: normalizeQuartile(row.Quartile),
             'Final Score': row['Final Score'],
             Personnel: 0,
