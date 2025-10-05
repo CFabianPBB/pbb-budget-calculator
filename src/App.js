@@ -165,6 +165,7 @@ function App() {
     const departmentMap = {};
     calculated.forEach(program => {
       const dept = program.Department;
+      console.log('Program:', program.Program, 'Department:', program.Department);
       if (!departmentMap[dept]) {
         departmentMap[dept] = {
           department: dept,
