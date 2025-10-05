@@ -67,9 +67,10 @@ function App() {
         const programId = row.program_id;
         if (!programId) return;
         
-        // Get department from column D (index 3) and program from column V (index 21)
-        const departmentFromColumnD = rawData[index + 1] ? rawData[index + 1][3] : 'N/A';
-        const programFromColumnV = rawData[index + 1] ? rawData[index + 1][21] : 'Unknown Program';
+        // Read from raw data array - index + 1 because row 0 is headers
+        const rawRow = rawData[index + 1];
+        const departmentFromColumnD = rawRow ? rawRow[3] : 'N/A';  // Column D = index 3
+        const programFromColumnV = rawRow ? rawRow[21] : 'Unknown Program';  // Column V = index 21
         
         if (!programMap[programId]) {
           programMap[programId] = {
@@ -86,6 +87,7 @@ function App() {
             fundBreakdown: {}
           };
         }
+        
         const amount = parseFloat(row['Total Item Cost']) || 0;
         const acctType = row.AcctType;
         const costType = row['Cost Type'];
@@ -115,9 +117,11 @@ function App() {
       setPrograms(programsArray);
       alert(`Successfully loaded ${programsArray.length} programs from ${detailsData.length} detail records!`);
     } catch (error) {
+      console.error('Error details:', error);
       alert('Error reading file. Please ensure it contains a "Details" sheet.');
     }
   };
+  
 
   const calculateTargetBudgets = () => {
     if (programs.length === 0) {
