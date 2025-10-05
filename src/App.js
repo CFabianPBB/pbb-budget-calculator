@@ -62,18 +62,22 @@ function App() {
       const funds = [...new Set(detailsData.map(row => row.Fund))].filter(f => f).sort();
       setAvailableFunds(['All Funds', ...funds]);
       
+      // Group by program_id + department + fund combination
       const programMap = {};
       detailsData.forEach((row, index) => {
         const programId = row.program_id;
         if (!programId) return;
         
-        // Read from raw data array - index + 1 because row 0 is headers
         const rawRow = rawData[index + 1];
-        const departmentFromColumnD = rawRow ? rawRow[3] : 'N/A';  // Column D = index 3
-        const programFromColumnV = rawRow ? rawRow[21] : 'Unknown Program';  // Column V = index 21
+        const departmentFromColumnD = rawRow ? rawRow[3] : 'N/A';
+        const programFromColumnV = rawRow ? rawRow[21] : 'Unknown Program';
+        const fundName = row.Fund;
         
-        if (!programMap[programId]) {
-          programMap[programId] = {
+        // Create unique key for program + department + fund combination
+        const key = `${programId}_${departmentFromColumnD}_${fundName}`;
+        
+        if (!programMap[key]) {
+          programMap[key] = {
             program_id: programId,
             Program: programFromColumnV || 'Unknown Program',
             Department: departmentFromColumnD || 'N/A',
@@ -91,21 +95,21 @@ function App() {
         const amount = parseFloat(row['Total Item Cost']) || 0;
         const acctType = row.AcctType;
         const costType = row['Cost Type'];
-        const fundName = row.Fund;
-        programMap[programId].funds.add(fundName);
-        if (!programMap[programId].fundBreakdown[fundName]) {
-          programMap[programId].fundBreakdown[fundName] = 0;
+        
+        programMap[key].funds.add(fundName);
+        if (!programMap[key].fundBreakdown[fundName]) {
+          programMap[key].fundBreakdown[fundName] = 0;
         }
         if (acctType === 'Expense') {
-          programMap[programId].Budget += amount;
-          programMap[programId].fundBreakdown[fundName] += amount;
+          programMap[key].Budget += amount;
+          programMap[key].fundBreakdown[fundName] += amount;
           if (costType === 'Personnel') {
-            programMap[programId].Personnel += amount;
+            programMap[key].Personnel += amount;
           } else if (costType === 'NonPersonnel') {
-            programMap[programId].NonPersonnel += amount;
+            programMap[key].NonPersonnel += amount;
           }
         } else if (acctType === 'Revenue') {
-          programMap[programId].Revenue += amount;
+          programMap[key].Revenue += amount;
         }
       });
       
@@ -122,7 +126,6 @@ function App() {
     }
   };
   
-
   const calculateTargetBudgets = () => {
     if (programs.length === 0) {
       alert('Please upload a file first');
